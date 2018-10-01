@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+.vs/
+Debug/
+TestProject/Fbx/tama_ascii.fbm/tama2.png
+TestProject/golem_ascii.fbm/
+TestProject/tama_ascii.fbm/
+TestProject/Fbx/tama_0.FBX
+TestProject/Fbx/minekaze_new_anime.fbx
+TestProject/Fbx/kongou.fbx
+TestProject/Fbx/golem_ascii.FBX
+TestProject/Fbx/ganseki.FBX
+TestProject/Fbx/tenryu.fbx
+TestProject/Fbx/golem_ascii.fbm/
+sourceimages/
