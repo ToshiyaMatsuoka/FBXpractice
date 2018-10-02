@@ -15,28 +15,6 @@
 #define GAME_FPS (1000 / 60)			// ゲームFPS
 
 #define SAFE_RELEASE(p) { if(p) { (p)->Release(); (p)=NULL; } }
-enum MESH {
-	CHIPS,
-	CAN,
-	BOTTLE,
-	MESHMAX
-};
-//struct THING
-//{
-//	LPD3DXMESH pMesh;
-//	D3DMATERIAL9* pMeshMaterials;
-//	LPDIRECT3DTEXTURE9* pMeshTextures;
-//	DWORD dwNumMaterials;
-//	D3DXVECTOR3 vecPosition;
-//	float fPosX = 0, fPosY = 0, fPosZ = 0, fHeading = 0, fPitch = 0;
-//
-//	THING()
-//	{
-//		ZeroMemory(this, sizeof(THING));
-//	}
-//};
-
-//THING Thing[MESHMAX];
 
 float fCameraX = 0.f, fCameraY = 1.0f, fCameraZ = -3.0f,
 fCameraHeading = 0.f, fCameraPitch = 0, /*fPosX = 0, fPosY = 0, fPosZ = 0,*/
@@ -50,17 +28,15 @@ FbxRelated fbxRelated;
 unsigned int gameRoop();
 unsigned int ExitGame();
 void Render();
-void Control(/*THING* pThing*/);
-//HRESULT InitThing(THING *pThing, LPCTSTR szXFileName, D3DXVECTOR3* pvecPosition);
-//void RenderThing(THING* pThing);
+void Control();
 void CameraAndLightSetting();
 
 
 // エントリポイント
 INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstance, char* szStr, INT iCmdShow) {
 		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-		//_CrtSetBreakAlloc(571466);
-		//_CrtSetBreakAlloc(1000);
+		//_CrtSetBreakAlloc(570826);
+		//_CrtSetBreakAlloc(110);
 
 		HWND hWnd = NULL;
 
@@ -94,15 +70,11 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstance, char* szStr, INT iCmdSh
 			}
 		}
 
-		//InitThing(&Thing[0], L"Chips.x", &D3DXVECTOR3(0, -1, 0));
-		//InitThing(&Thing[1], L"Can.x", &D3DXVECTOR3(0, 0, 0));
-		//InitThing(&Thing[2], L"Bottle.x", &D3DXVECTOR3(1, 0, 1));
 		fbxRelated.LoadFbx("UnityChan/Models/unitychan.FBX");
 		//if (false(fbxRelated.LoadFbx("./UnityChan/Animations/unitychan_DAMAGED00.FBX"))) {
 		//	MessageBox(0, _T("FBXの読込に失敗しました"), NULL, MB_OK);
 		//}
 		//fbxRelated.LoadFbx("FBX/MonsterGroup1/WarFireDragon/Mesh/WarFireDragon.FBX");
-		//pTextureName = "チップ＿袋＿カラー.bmp";
 		g_pD3Device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 		g_pD3Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);  //SRCの設定
 		g_pD3Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -159,14 +131,6 @@ void UnityChanRendring() {
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matRoling);
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matHeading);
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPitch);
-		//if (i == 23) {
-		//	D3DXMatrixRotationZ(&matPitch, -1.0f);
-		//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPitch);
-		//}
-		//if (i == 2||i==3) {
-		//	D3DXMatrixRotationZ(&matRoling, 0.5f);
-		//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matRoling);
-		//}
 
 		//移動
 		D3DXMATRIX			matPosition;	// 位置座標行列
@@ -174,9 +138,6 @@ void UnityChanRendring() {
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPosition);
 		g_pD3Device->SetTransform(D3DTS_WORLD, &m_MatWorld);
 
-		//D3DXMatrixTranslation(&matPosition, fPosX + (i*0.01f), fPosY + (i*0.01f), fPosZ + (i*0.01f));
-		//D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPosition);
-		//g_pD3Device->SetTransform(D3DTS_WORLD, &m_MatWorld);
 		switch (i) {
 		case 0:
 			g_pD3Device->SetTexture(0, g_pTexture["c"]);//face
@@ -260,9 +221,8 @@ void UnityChanRendring() {
 }
 unsigned int gameRoop() {
 
-	Control(/*Thing*/);
+	Control();
 	Render();
-
 
 
 	return ExitGame();
@@ -282,17 +242,11 @@ void Render() {
 	g_pD3Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 		D3DCOLOR_XRGB(00, 00, 00), 1.0f, 0);
 	g_pD3Device->BeginScene();
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	RenderThing(&Thing[i]);
-	//}
-		//RenderThing(&Thing[3]);
-		UnityChanRendring();
+	UnityChanRendring();
 	CameraAndLightSetting();
 
 	g_pD3Device->SetFVF(D3DFVF_CUSTOMVERTEX);
 
-	//EasyCreateSquareVertex(50, 50, 400, 400, "a");
 	EndSetTexture();
 
 }
@@ -334,71 +288,6 @@ void Control(/*THING* pThing*/) {
 	if (InputKEY(DIK_MULTIPLY))fRoling += 0.1f;
 }
 
-
-//HRESULT InitThing(THING *pThing, LPCTSTR szXFileName, D3DXVECTOR3* pvecPosition)
-//{
-//	// メッシュの初期位置
-//	memcpy(&pThing->vecPosition, pvecPosition, sizeof(D3DXVECTOR3));
-//	// Xファイルからメッシュをロードする	
-//	LPD3DXBUFFER pD3DXMtrlBuffer = NULL;
-//
-//	if (FAILED(D3DXLoadMeshFromX(szXFileName, D3DXMESH_SYSTEMMEM,
-//		g_pD3Device, NULL, &pD3DXMtrlBuffer, NULL,
-//		&pThing->dwNumMaterials, &pThing->pMesh)))
-//	{
-//		MessageBoxA(NULL, pCchar("Xファイルの読み込みに失敗しました"), pCchar(szXFileName), MB_OK);
-//		return E_FAIL;
-//	}
-//	D3DXMATERIAL* d3dxMaterials = (D3DXMATERIAL*)pD3DXMtrlBuffer->GetBufferPointer();
-//	pThing->pMeshMaterials = new D3DMATERIAL9[pThing->dwNumMaterials];
-//	pThing->pMeshTextures = new LPDIRECT3DTEXTURE9[pThing->dwNumMaterials];
-//
-//	for (DWORD i = 0; i<pThing->dwNumMaterials; i++)
-//	{
-//		pThing->pMeshMaterials[i] = d3dxMaterials[i].MatD3D;
-//		pThing->pMeshMaterials[i].Ambient = pThing->pMeshMaterials[i].Diffuse;
-//		pThing->pMeshTextures[i] = NULL;
-//		if (d3dxMaterials[i].pTextureFilename != NULL &&
-//			lstrlen(_T(d3dxMaterials[i].pTextureFilename)) > 0)
-//		{
-//			if (FAILED(D3DXCreateTextureFromFileA(g_pD3Device,
-//				pCchar(d3dxMaterials[i].pTextureFilename),
-//				&pThing->pMeshTextures[i])))
-//			{
-//				MessageBoxA(NULL, pCchar("テクスチャの読み込みに失敗しました"), NULL, MB_OK);
-//			}
-//		}
-//	}
-//	pD3DXMtrlBuffer->Release();
-//
-//	return S_OK;
-//}
-
-//void RenderThing(THING* pThing) {
-//	//ワールドトランスフォーム（絶対座標変換）
-//	D3DXMATRIXA16 matWorld, matPosition, fHeading, fPitch;
-//	D3DXMatrixIdentity(&matWorld);
-//	for (int i = 0; i < MESHMAX; i++) {
-//		D3DXMatrixTranslation(&matPosition, pThing->vecPosition.x + pThing->fPosX, pThing->vecPosition.y + pThing->fPosY,
-//			pThing->vecPosition.z + pThing->fPosZ);
-//		D3DXMatrixRotationY(&fHeading, pThing->fHeading);
-//		D3DXMatrixRotationX(&fPitch, pThing->fPitch);
-//	}
-//	D3DXMatrixMultiply(&matWorld, &matWorld, &fHeading);
-//	D3DXMatrixMultiply(&matWorld, &matWorld, &fPitch);
-//	D3DXMatrixMultiply(&matWorld, &matWorld, &matPosition);
-//
-//	g_pD3Device->SetTransform(D3DTS_WORLD, &matWorld);
-//
-//	// レンダリング	 
-//	for (DWORD i = 0; i<pThing->dwNumMaterials; i++)
-//	{
-//		g_pD3Device->SetMaterial(&pThing->pMeshMaterials[i]);
-//		g_pD3Device->SetTexture(0, pThing->pMeshTextures[i]);
-//		pThing->pMesh->DrawSubset(i);
-//	}
-//}
-
 void CameraAndLightSetting() {
 	// ビュートランスフォーム（視点座標変換）
 	D3DXVECTOR3 vecEyePt(fCameraX, fCameraY, fCameraZ); //カメラ（視点）位置
@@ -425,9 +314,9 @@ void CameraAndLightSetting() {
 	light.Diffuse.r = 1.0f;
 	light.Diffuse.g = 1.0f;
 	light.Diffuse.b = 1.0f;
-	//light.Specular.r = 1.0f;
-	//light.Specular.g = 1.0f;
-	//light.Specular.b = 1.0f;
+	light.Specular.r = 1.0f;
+	light.Specular.g = 1.0f;
+	light.Specular.b = 1.0f;
 
 	D3DXVec3Normalize((D3DXVECTOR3*)&light.Direction, &vecDirection);
 	light.Range = 20.0f;

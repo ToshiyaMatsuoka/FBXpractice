@@ -218,7 +218,7 @@ HRESULT GraphicsDevice::ChangeDisplayMode()
 
 GraphicsDevice::~GraphicsDevice()
 {
-	if(&m_pD3Device != NULL)
+	if(m_pD3Device)
 	{
 		m_pD3Device->Release();
 		m_pD3Device = NULL;
@@ -228,7 +228,7 @@ GraphicsDevice::~GraphicsDevice()
 		// インターフェイス作成及びデバイス作成に失敗した場合にこの分岐にはいる。 チェック用空処理
 	}
 
-	if(&m_pDirect3D != NULL)
+	if(m_pDirect3D)
 	{
 		m_pDirect3D->Release();
 		m_pDirect3D = NULL;

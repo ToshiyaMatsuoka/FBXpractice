@@ -4,13 +4,13 @@
 * @author	kawaguchi
 */
 
+
 #ifndef FBXRELATED_H
 #define FBXRELATED_H
 
 #include "FbxModel.h"
+
 #include <vector>
-extern LPCSTR textureName;
-extern LPCSTR& pTextureName;
 class FbxRelated
 {
 	friend class FbxModel;

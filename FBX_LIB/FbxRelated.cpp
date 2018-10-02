@@ -5,9 +5,8 @@
 */
 
 #include "FbxRelated.h"
-LPCSTR textureName;
 
-LPCSTR& pTextureName = textureName;
+
 FbxRelated::FbxRelated()
 {
 	m_pFbxManager = NULL;
@@ -23,53 +22,66 @@ FbxRelated::~FbxRelated()
 
 void FbxRelated::Release()
 {
-	if (m_pFbxScene)
-	{
+	if (m_pFbxScene) {
 		m_pFbxScene->Destroy();
 		m_pFbxScene = NULL;
 	}
-
-	if (m_pFbxManager)
-	{
+	if (m_pFbxManager) {
 
 		m_pFbxManager->Destroy();
 		m_pFbxManager = NULL;
 	}
-
-
 	for (int j = 0; j < m_modelDataCount; ++j) {
-		for (int i = 0; i < m_pModel[j]->m_pFbxModelData->uvIndexCount; i++)
-		{
-			if (m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.capacity())
-			{
-				m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer[i] = NULL;
-			}
+		//delete[] m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer[0];
+		//for (int i = 0; i < m_pModel[j]->m_pFbxModelData->uvIndexCount; i++)
+		//{
+		//if (m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.capacity())
+		//{
+			//m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer[i] = NULL;
+		//}
+		//}
+		std::vector<D3DXVECTOR2*>().swap(m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer);
+		while (m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.size()) {
+			m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.pop_back();
 		}
-		m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.clear();
-		if (m_pModel[j]->m_pFbxModelData->pVertexColor)
-			{
-				delete m_pModel[j]->m_pFbxModelData->pVertexColor;
-				m_pModel[j]->m_pFbxModelData->pVertexColor = NULL;
-			}
+		delete[] m_pModel[j]->m_pFbxModelData->pVertexColor;
+		m_pModel[j]->m_pFbxModelData->pVertexColor = NULL;
 
 		if (m_pModel[j]->m_pFbxModelData->fileTextureCount)
 		{
-			if (!m_pModel[j]->m_pFbxModelData->pTmpTexture)
-			{
-				delete m_pModel[j]->m_pFbxModelData->pTmpTexture;
-				m_pModel[j]->m_pFbxModelData->pTmpTexture = NULL;
-			}
+			delete m_pModel[j]->m_pFbxModelData->pTmpTexture;
+			m_pModel[j]->m_pFbxModelData->pTmpTexture = NULL;
 		}
+
+		while(m_pModel[j]->m_pFbxModelData->MaterialData.size()){
+		m_pModel[j]->m_pFbxModelData->MaterialData.pop_back();
+		}
+		std::vector<D3DXVECTOR2*>().swap(m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer);
+		if (m_pModel[j]->m_pFbxModelData->pTextureData.size()) {
+			delete[] m_pModel[j]->m_pFbxModelData->pTextureData[0];
+		}
+		while (m_pModel[j]->m_pFbxModelData->pTextureData.size()) {
+			m_pModel[j]->m_pFbxModelData->pTextureData.pop_back();
+		}
+		//std::vector<TextureData*>().swap(m_pModel[j]->m_pFbxModelData->pTextureData);
 		delete m_pModel[j]->m_pFbxModelData->pIndexBuffer;
 		m_pModel[j]->m_pFbxModelData->pIndexBuffer = NULL;
-		delete m_pModel[j]->m_pFbxModelData->pVertex;
+
+		delete[] m_pModel[j]->m_pFbxModelData->pVertex;
 		m_pModel[j]->m_pFbxModelData->pVertex = NULL;
-		delete m_pModel[j]->m_pFbxModelData->pPolygonSize;
+
+		delete[] m_pModel[j]->m_pFbxModelData->pPolygonSize;
 		m_pModel[j]->m_pFbxModelData->pPolygonSize = NULL;
+
 		delete m_pModel[j]->m_pFbxModelData;
 		m_pModel[j]->m_pFbxModelData = NULL;
+
 		delete m_pModel[j];
 		m_pModel[j] = NULL;
+	}
+	if (1==m_pModel.size()) {
+		delete m_pModel[0]->m_pFbxModelData;
+		delete m_pModel[0];
 	}
 	std::vector<FbxModel*>().swap(m_pModel);
 }
@@ -118,8 +130,8 @@ bool FbxRelated::InitializeFbxSdkObjects()
 		FBXSDK_printf("Autodesk FBX SDK version %s\n", m_pFbxManager->GetVersion());
 	}
 
-	fbxsdk::FbxIOSettings* pIOSetting = fbxsdk::FbxIOSettings::Create(m_pFbxManager, IOSROOT);
-	m_pFbxManager->SetIOSettings(pIOSetting);
+	//fbxsdk::FbxIOSettings* pIOSetting = fbxsdk::FbxIOSettings::Create(m_pFbxManager, IOSROOT);
+	m_pFbxManager->SetIOSettings(fbxsdk::FbxIOSettings::Create(m_pFbxManager, IOSROOT));
 
 	m_pFbxScene = fbxsdk::FbxScene::Create(m_pFbxManager, "");
 	if (!m_pFbxScene)
@@ -192,6 +204,7 @@ bool FbxRelated::LoadFbx(const char* pName)
 			GetMesh(pRootNode->GetChild(i));
 		}
 	}
+	pRootNode->Destroy();
 	return true;
 
 }
@@ -236,6 +249,7 @@ void FbxRelated::GetMesh(fbxsdk::FbxNode* pNode)
 	{
 		GetMesh(pNode->GetChild(i));
 	}
+	pAttr->Destroy();
 }
 
 void FbxRelated::GetPosition(fbxsdk::FbxMesh* pMesh)
@@ -369,7 +383,7 @@ void FbxRelated::GetVertexNormal(fbxsdk::FbxMesh* pMesh)
 
 		//	リファレンスモードの取得
 		fbxsdk::FbxGeometryElement::EReferenceMode reference = pNormal->GetReferenceMode();
-
+		
 		//	マッピングモードの判別
 		switch (mapping)
 		{
@@ -447,6 +461,8 @@ void FbxRelated::GetVertexUV(fbxsdk::FbxMesh* pMesh)
 {
 	//	UVセット数を取得
 	m_pModel[m_modelDataCount - 1]->m_pFbxModelData->UvLayerCount = pMesh->GetElementUVCount();
+	//	UVを保持
+	std::vector<D3DXVECTOR2*> temp;
 
 	for (int i = 0; m_pModel[m_modelDataCount - 1]->m_pFbxModelData->UvLayerCount > i; i++)
 	{
@@ -482,21 +498,23 @@ void FbxRelated::GetVertexUV(fbxsdk::FbxMesh* pMesh)
 
 				m_pModel[m_modelDataCount - 1]->m_pFbxModelData->uvIndexCount = pUvIndex->GetCount();
 
-				//	UVを保持
-				std::vector<D3DXVECTOR2*> temp;
-				int uVCount = 0;
-				temp.push_back(new D3DXVECTOR2[uVCount = m_pModel[m_modelDataCount - 1]->m_pFbxModelData->uvIndexCount]);
+				//uVCount = 0;
+				int uVCount = m_pModel[m_modelDataCount - 1]->m_pFbxModelData->uvIndexCount;
+				temp.push_back(new D3DXVECTOR2[uVCount]);
 				for (int j = 0; uVCount > j; j++) {
-					fbxsdk::FbxVector2&  rFbxVector2 = pUV->GetDirectArray().GetAt(pUvIndex->GetAt(j));
-					temp[0][j].x = (float)rFbxVector2[0];
-					temp[0][j].y = 1.f - (float)rFbxVector2[1];
-					FbxModel::FBXMODELDATA*& pModeldata = m_pModel[m_modelDataCount - 1]->m_pFbxModelData;
-					pModeldata->uvSet.uvBuffer.push_back(temp[0]);
+					fbxsdk::FbxVector2  rFbxVector2( pUV->GetDirectArray().GetAt(pUvIndex->GetAt(j)));
+					temp[0] [j].x = (float)rFbxVector2[0];
+					temp[0] [j].y = 1.f - (float)rFbxVector2[1];
+					//FbxModel::FBXMODELDATA*& pModeldata = m_pModel[m_modelDataCount - 1]->m_pFbxModelData;
+					m_pModel[m_modelDataCount - 1]->m_pFbxModelData->uvSet.uvBuffer.push_back(temp[0]);
+
 				}
-				temp.clear();
+				
+				
 				//std::vector<D3DXVECTOR2*>().swap(temp);
 				//	UVSet名を取得
 				m_pModel[m_modelDataCount - 1]->m_pFbxModelData->uvSet.uvSetName = pUV->GetName();
+				
 			}
 			break;
 
@@ -514,13 +532,17 @@ void FbxRelated::GetVertexUV(fbxsdk::FbxMesh* pMesh)
 		default:
 			break;
 		}
+		pUV->Destroy();
 	}
 	for (int i = 0; i < m_pModel[m_modelDataCount - 1]->m_pFbxModelData->indexCount; i++)
 	{
 		m_pModel[m_modelDataCount-1]->m_pFbxModelData->pVertex[i].tu = m_pModel[m_modelDataCount-1]->m_pFbxModelData->uvSet.uvBuffer[0][i].x;
 		m_pModel[m_modelDataCount-1]->m_pFbxModelData->pVertex[i].tv = m_pModel[m_modelDataCount-1]->m_pFbxModelData->uvSet.uvBuffer[0][i].y;
 	}
-
+	for (int i = temp.size(); i > 0 ;i--) {
+		delete temp[i - 1];
+		temp.pop_back();
+	}
 }
 
 
@@ -542,7 +564,7 @@ void FbxRelated::GetMaterialData(fbxsdk::FbxMesh* pMesh)
 		fbxsdk::FbxSurfaceMaterial* pMaterial = pNode->GetMaterial(i);
 
 		D3DMATERIAL9 MaterialData;
-
+		
 		if (pMaterial->GetClassId().Is(fbxsdk::FbxSurfaceLambert::ClassId))
 		{
 			// Lambertにダウンキャスト
@@ -676,7 +698,6 @@ void FbxRelated::GetMaterialData(fbxsdk::FbxMesh* pMesh)
 
 		}
 	}
-
 }
 
 void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* pMatAttr)
@@ -688,7 +709,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 	int layeredTextureCount = prop.GetSrcObjectCount<fbxsdk::FbxLayeredTexture>();
 	//	FbxFileTexture数を取得
 	int fileTextureCount = prop.GetSrcObjectCount<fbxsdk::FbxFileTexture>();
-	int proceduralTextureCount = /*prop.GetSrcObjectCount<fbxsdk::FbxProceduralTexture>()*/23;
+	int proceduralTextureCount = prop.GetSrcObjectCount<fbxsdk::FbxProceduralTexture>();
 	//	アタッチされたテクスチャがFbxLayeredTexture の場合
 	if (0 < layeredTextureCount)
 	{
@@ -711,7 +732,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 				{
 					//	テクスチャ名を取得
 					//	std::string textureName = texture->GetName();
-					/*LPCSTR*/ textureName = pFbxFileTexture->GetRelativeFileName();
+					LPCSTR textureName = pFbxFileTexture->GetRelativeFileName();
 
 					//	UVSet名を取得
 					std::string UVSetName = pFbxFileTexture->UVSet.Get().Buffer();
@@ -751,7 +772,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 				{
 					//	テクスチャ名を取得
 					//	std::string textureName = texture->GetName();
-					/*LPCSTR */textureName = pFbxFileTexture->GetRelativeFileName();
+					LPCSTR textureName = pFbxFileTexture->GetRelativeFileName();
 
 					//	UVSet名を取得
 					std::string UVSetName = pFbxFileTexture->UVSet.Get().Buffer();
@@ -789,7 +810,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 			{
 				//	テクスチャ名を取得
 					//std::string LPtextureName = pFbxProceduralTexture->GetName();
-				/*LPCSTR */textureName = pFbxProceduralTexture->GetName();
+				LPCSTR textureName = pFbxProceduralTexture->GetName();
 
 				//	UVSet名を取得
 				std::string UVSetName = pFbxProceduralTexture->UVSet.Get().Buffer();
