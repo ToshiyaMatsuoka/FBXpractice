@@ -22,8 +22,8 @@ LightX = 1.f, LightY = 1.f, LightZ = -5.f;
 float fPosX = 0.f, fPosY = -1.0f, fPosZ = 0.f, fRoling = 0.f , fHeading = 0.f, fPitch = 0.f;
 
 
-FbxRelated fbxRelated;
-
+//FbxRelated fbxRelated;
+void Render(FbxRelated* fbxRelated);
 
 unsigned int gameRoop();
 unsigned int ExitGame();
@@ -38,7 +38,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstance, char* szStr, INT iCmdSh
 		//_CrtSetBreakAlloc(570826);
 		//_CrtSetBreakAlloc(110);
 		HWND hWnd = NULL;
-		//FbxRelated fbxRelated;
+		FbxRelated fbxRelated;
 
 		//UNICODEÇégópéûÇÕëÊàÍà¯êîÇÃì™Ç…LÇÇ¬ÇØÇÈ
 #ifdef _DEBUG
@@ -101,19 +101,170 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstance, char* szStr, INT iCmdSh
 		ReadInTexture("eye_iris_R_00.tga", "h");
 		ReadInTexture("eyeline_00.tga", "i");
 
-		FlameRoop(gameRoop);
-
+		//FlameRoop(gameRoop);
+		while (!InputKEY(DIK_RETURN)) {
+			Render(&fbxRelated);
+		}
+		return 0;
 }
 void UnityChanRendring() {
 	static float gotoaway = -1.0f;
 	gotoaway += 0.001;
 
-	for (int i = 0; i < fbxRelated.m_pModel.size(); i++) {
+	//for (int i = 0; i < fbxRelated.m_pModel.size(); i++) {
+	//	D3DXMATRIX			m_MatWorld;
+	//	D3DXMatrixIdentity(&m_MatWorld);
+	//	//ägèk
+	//	D3DXMATRIX			m_MatScale;
+	//	float MatScale = 0.01f;
+	//	D3DXMatrixScaling(&m_MatScale, MatScale, MatScale, MatScale);
+	//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &m_MatScale);
+
+	//	// âÒì]
+	//	D3DXMATRIX matRoling;
+	//	D3DXMATRIX matHeading;
+	//	D3DXMATRIX matPitch;
+	//	static float pitch = 0;
+	//	pitch += D3DX_PI;
+	//	//D3DXMatrixRotationY(&matPitch, pitch);
+	//	D3DXMatrixRotationZ(&matRoling, fRoling);
+	//	D3DXMatrixRotationY(&matHeading, fHeading+2.8f);
+	//	D3DXMatrixRotationX(&matPitch, fPitch);
+	//	//D3DXMatrixRotationX(&matHeading, 270 * (3.145f / 180.f));
+	//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matRoling);
+	//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matHeading);
+	//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPitch);
+
+	//	//à⁄ìÆ
+	//	D3DXMATRIX			matPosition;	// à íuç¿ïWçsóÒ
+	//	D3DXMatrixTranslation(&matPosition, fPosX, fPosY, fPosZ);
+	//	D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matPosition);
+	//	g_pD3Device->SetTransform(D3DTS_WORLD, &m_MatWorld);
+
+	//	switch (i) {
+	//	case 0:
+	//		g_pD3Device->SetTexture(0, g_pTexture["c"]);//face
+	//		break;
+	//	case 1:
+	//		g_pD3Device->SetTexture(0, g_pTexture["i"]);//ñ⁄ÇÃó†
+	//		break;
+	//	case 2:
+	//		g_pD3Device->SetTexture(0, g_pTexture["h"]);//righteye
+	//		break;
+	//	case 3:
+	//		g_pD3Device->SetTexture(0, g_pTexture["g"]);//lefteye
+	//		break;
+	//	case 4:
+	//		g_pD3Device->SetTexture(0, g_pTexture["c"]);//faceline
+	//		break;
+	//	case 5:
+	//		g_pD3Device->SetTexture(0, g_pTexture["c"]);//faceeyeline
+	//		break;
+	//	case 6:
+	//		g_pD3Device->SetTexture(0, g_pTexture["i"]);//eyeline
+	//		break;
+	//	case 7:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//îØ
+	//		break;
+	//	case 8:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//îØ
+	//		break;
+	//	case 9:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//îØ
+	//		break;
+	//	case 10:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//îØ
+	//		break;
+	//	case 11:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//ñ[
+	//		break;
+	//	case 12:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//îØÉSÉÄ
+	//		break;
+	//	case 13:
+	//		g_pD3Device->SetTexture(0, g_pTexture["e"]);//bodyskin
+	//		break;
+	//	case 14:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//bodywere
+	//		break;
+	//	case 15:
+	//		g_pD3Device->SetTexture(0, g_pTexture["b"]);//îØ
+	//		break;
+	//	case 16:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//west
+	//		break;
+	//	case 17:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//arms
+	//		break;
+	//	case 18:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//upperinnner
+	//		break;
+	//	case 19:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//logo
+	//		break;
+	//	case 20:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//îØè¸ÇË
+	//		break;
+	//	case 21:
+	//		g_pD3Device->SetTexture(0, g_pTexture["d"]);//ñj
+	//		break;
+	//	case 22:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//legwere
+	//		break;
+	//	case 23:
+	//		g_pD3Device->SetTexture(0, g_pTexture["a"]);//
+	//		break;
+
+
+	//	}
+	//	fbxRelated.m_pModel[i]->DrawFbx();
+	//}
+
+
+}
+unsigned int gameRoop() {
+
+	Control();
+	Render();
+
+
+	return ExitGame();
+}
+
+unsigned int ExitGame() {
+	CheckKeyState(DIK_ESCAPE);
+	if (KeyState[DIK_ESCAPE] == KeyRelease)
+	{
+		return WM_QUIT;
+	}
+	return WM_NULL;
+
+}
+
+void Render() {
+	g_pD3Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
+	g_pD3Device->BeginScene();
+	UnityChanRendring();
+	CameraAndLightSetting();
+
+	g_pD3Device->SetFVF(D3DFVF_CUSTOMVERTEX);
+
+	EndSetTexture();
+
+}
+void Render(FbxRelated* fbxRelated) {
+	g_pD3Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCOLOR_XRGB(100, 100, 100), 1.0f, 0);
+	g_pD3Device->BeginScene();
+
+
+	for (int i = 0; i < fbxRelated->m_pModel.size(); i++) {
 		D3DXMATRIX			m_MatWorld;
 		D3DXMatrixIdentity(&m_MatWorld);
 		//ägèk
 		D3DXMATRIX			m_MatScale;
-		float MatScale = 0.01f;
+		float MatScale = 1.01f;
 		D3DXMatrixScaling(&m_MatScale, MatScale, MatScale, MatScale);
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &m_MatScale);
 
@@ -125,7 +276,7 @@ void UnityChanRendring() {
 		pitch += D3DX_PI;
 		//D3DXMatrixRotationY(&matPitch, pitch);
 		D3DXMatrixRotationZ(&matRoling, fRoling);
-		D3DXMatrixRotationY(&matHeading, fHeading+2.8f);
+		D3DXMatrixRotationY(&matHeading, fHeading + 2.8f);
 		D3DXMatrixRotationX(&matPitch, fPitch);
 		//D3DXMatrixRotationX(&matHeading, 270 * (3.145f / 180.f));
 		D3DXMatrixMultiply(&m_MatWorld, &m_MatWorld, &matRoling);
@@ -214,44 +365,18 @@ void UnityChanRendring() {
 
 
 		}
-		fbxRelated.m_pModel[i]->DrawFbx();
+		fbxRelated->m_pModel[i]->DrawFbx();
 	}
 
 
-}
-unsigned int gameRoop() {
-
-	Control();
-	Render();
-
-
-	return ExitGame();
-}
-
-unsigned int ExitGame() {
-	CheckKeyState(DIK_ESCAPE);
-	if (KeyState[DIK_ESCAPE] == KeyRelease)
-	{
-		return WM_QUIT;
-	}
-	return WM_NULL;
-
-}
-
-void Render() {
-	g_pD3Device->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		D3DCOLOR_XRGB(00, 00, 00), 1.0f, 0);
-	g_pD3Device->BeginScene();
-	UnityChanRendring();
 	CameraAndLightSetting();
 
-	g_pD3Device->SetFVF(D3DFVF_CUSTOMVERTEX);
 
 	EndSetTexture();
 
 }
 
-void Control(/*THING* pThing*/) {
+void Control() {
 	if (InputKEY(DIK_A))fCameraX -= 0.1f;
 	if (InputKEY(DIK_D))fCameraX += 0.1f;
 	if (InputKEY(DIK_Q))fCameraY -= 0.1f;

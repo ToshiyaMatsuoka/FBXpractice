@@ -15,9 +15,6 @@ FbxModel::FbxModel()
 
 FbxModel::~FbxModel()
 {
-	if (m_pDevice) {
-		m_pDevice->Release();
-	}
 }
 
 void FbxModel::DrawFbx()
