@@ -37,8 +37,8 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hInstance, char* szStr, INT iCmdSh
 		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 		//_CrtSetBreakAlloc(570826);
 		//_CrtSetBreakAlloc(110);
-
 		HWND hWnd = NULL;
+		//FbxRelated fbxRelated;
 
 		//UNICODE‚ğg—p‚Í‘æˆêˆø”‚Ì“ª‚ÉL‚ğ‚Â‚¯‚é
 #ifdef _DEBUG

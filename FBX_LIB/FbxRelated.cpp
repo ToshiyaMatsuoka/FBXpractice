@@ -22,50 +22,34 @@ FbxRelated::~FbxRelated()
 
 void FbxRelated::Release()
 {
-	if (m_pFbxScene) {
-		m_pFbxScene->Destroy();
-		m_pFbxScene = NULL;
-	}
-	if (m_pFbxManager) {
 
-		m_pFbxManager->Destroy();
-		m_pFbxManager = NULL;
-	}
-	for (int j = 0; j < m_modelDataCount; ++j) {
-		//delete[] m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer[0];
-		//for (int i = 0; i < m_pModel[j]->m_pFbxModelData->uvIndexCount; i++)
-		//{
-		//if (m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.capacity())
-		//{
-			//m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer[i] = NULL;
-		//}
-		//}
-		std::vector<D3DXVECTOR2*>().swap(m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer);
-		while (m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.size()) {
-			m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer.pop_back();
-		}
+	for (int j = 0; j < m_pModel.size(); ++j) {
 		delete[] m_pModel[j]->m_pFbxModelData->pVertexColor;
 		m_pModel[j]->m_pFbxModelData->pVertexColor = NULL;
 
-		if (m_pModel[j]->m_pFbxModelData->fileTextureCount)
+		//m_pModel[j]->m_pFbxModelData->pTmpTexture->pTexture->Release();
+		//m_pModel[j]->m_pFbxModelData->pTmpTexture->pTexture = NULL;
+		if (m_pModel[j]->m_pFbxModelData->pTextureData.size())
 		{
-			delete m_pModel[j]->m_pFbxModelData->pTmpTexture;
-			m_pModel[j]->m_pFbxModelData->pTmpTexture = NULL;
+		delete m_pModel[j]->m_pFbxModelData->pTmpTexture;
+		m_pModel[j]->m_pFbxModelData->pTmpTexture->pTexture = NULL;
+		m_pModel[j]->m_pFbxModelData->pTmpTexture->TextureName = NULL;
+		m_pModel[j]->m_pFbxModelData->pTmpTexture = NULL;
 		}
 
 		while(m_pModel[j]->m_pFbxModelData->MaterialData.size()){
 		m_pModel[j]->m_pFbxModelData->MaterialData.pop_back();
 		}
-		std::vector<D3DXVECTOR2*>().swap(m_pModel[j]->m_pFbxModelData->uvSet.uvBuffer);
-		if (m_pModel[j]->m_pFbxModelData->pTextureData.size()) {
-			delete[] m_pModel[j]->m_pFbxModelData->pTextureData[0];
-		}
-		while (m_pModel[j]->m_pFbxModelData->pTextureData.size()) {
+		std::vector<D3DMATERIAL9>().swap(m_pModel[j]->m_pFbxModelData->MaterialData);
+		for (int i = m_pModel[j]->m_pFbxModelData->pTextureData.size(); i > 0;i--) {
+			//delete m_pModel[j]->m_pFbxModelData->pTextureData[i - 1];
+			m_pModel[j]->m_pFbxModelData->pTextureData[i - 1] = NULL;
 			m_pModel[j]->m_pFbxModelData->pTextureData.pop_back();
 		}
 		//std::vector<TextureData*>().swap(m_pModel[j]->m_pFbxModelData->pTextureData);
-		delete m_pModel[j]->m_pFbxModelData->pIndexBuffer;
-		m_pModel[j]->m_pFbxModelData->pIndexBuffer = NULL;
+		
+		//delete m_pModel[j]->m_pFbxModelData->pIndexBuffer;
+		//m_pModel[j]->m_pFbxModelData->pIndexBuffer = NULL;
 
 		delete[] m_pModel[j]->m_pFbxModelData->pVertex;
 		m_pModel[j]->m_pFbxModelData->pVertex = NULL;
@@ -79,11 +63,17 @@ void FbxRelated::Release()
 		delete m_pModel[j];
 		m_pModel[j] = NULL;
 	}
-	if (1==m_pModel.size()) {
-		delete m_pModel[0]->m_pFbxModelData;
-		delete m_pModel[0];
-	}
 	std::vector<FbxModel*>().swap(m_pModel);
+	if (m_pFbxScene) {
+		m_pFbxScene->Destroy();
+		m_pFbxScene = NULL;
+	}
+	if (m_pFbxManager) {
+
+		m_pFbxManager->Destroy();
+		m_pFbxManager = NULL;
+	}
+
 }
 
 
@@ -204,7 +194,6 @@ bool FbxRelated::LoadFbx(const char* pName)
 			GetMesh(pRootNode->GetChild(i));
 		}
 	}
-	pRootNode->Destroy();
 	return true;
 
 }
@@ -249,7 +238,6 @@ void FbxRelated::GetMesh(fbxsdk::FbxNode* pNode)
 	{
 		GetMesh(pNode->GetChild(i));
 	}
-	pAttr->Destroy();
 }
 
 void FbxRelated::GetPosition(fbxsdk::FbxMesh* pMesh)
@@ -363,6 +351,8 @@ void FbxRelated::GetPosition(fbxsdk::FbxMesh* pMesh)
 	{
 		m_pModel[m_modelDataCount - 1]->m_pFbxModelData->pIndexBuffer[i] = pIndex[i];
 	}
+	delete[] m_pModel[m_modelDataCount - 1]->m_pFbxModelData->pIndexBuffer;
+	m_pModel[m_modelDataCount - 1]->m_pFbxModelData->pIndexBuffer = NULL;
 	delete pTmpVertex;
 	pTmpVertex = NULL;
 }
@@ -453,6 +443,7 @@ void FbxRelated::GetVertexNormal(fbxsdk::FbxMesh* pMesh)
 			break;
 		}
 	}
+
 }
 
 
@@ -532,7 +523,6 @@ void FbxRelated::GetVertexUV(fbxsdk::FbxMesh* pMesh)
 		default:
 			break;
 		}
-		pUV->Destroy();
 	}
 	for (int i = 0; i < m_pModel[m_modelDataCount - 1]->m_pFbxModelData->indexCount; i++)
 	{
@@ -598,12 +588,13 @@ void FbxRelated::GetMaterialData(fbxsdk::FbxMesh* pMesh)
 			GetTextureName(lambert, fbxsdk::FbxSurfaceMaterial::sNormalMap);
 
 			m_pModel[m_modelDataCount - 1]->m_pFbxModelData->MaterialData.push_back(MaterialData);
+			lambert->Destroy();
 		}
 		else if (pMaterial->GetClassId().Is(fbxsdk::FbxSurfacePhong::ClassId))
 		{
 			// Phongにダウンキャスト
 			fbxsdk::FbxSurfacePhong* phong = (fbxsdk::FbxSurfacePhong*)pMaterial;
-
+			
 			// アンビエント
 			MaterialData.Ambient.r = (float)phong->Ambient.Get().mData[0] * (float)phong->AmbientFactor.Get();
 			MaterialData.Ambient.g = (float)phong->Ambient.Get().mData[1] * (float)phong->AmbientFactor.Get();
@@ -646,6 +637,7 @@ void FbxRelated::GetMaterialData(fbxsdk::FbxMesh* pMesh)
 			GetTextureName(phong, fbxsdk::FbxSurfaceMaterial::sNormalMap);
 
 			m_pModel[m_modelDataCount - 1]->m_pFbxModelData->MaterialData.push_back(MaterialData);
+			phong->Destroy();
 		}	
 		else if (pMaterial->GetClassId().Is(fbxsdk::FbxSurfaceMaterial::ClassId)) {
 
@@ -721,7 +713,6 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 
 			//	レイヤー数を取得
 			int textureCount = pLayeredTexture->GetSrcObjectCount<fbxsdk::FbxFileTexture>();
-
 			//	レイヤー数だけ繰り返す
 			for (int j = 0; textureCount > j; j++)
 			{
@@ -753,6 +744,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 						}
 						m_pModel[m_modelDataCount - 1]->m_pFbxModelData->fileTextureCount++;
 					}
+					pFbxFileTexture->Destroy();
 				}
 			}
 		}
@@ -794,6 +786,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 						m_pModel[m_modelDataCount - 1]->m_pFbxModelData->fileTextureCount++;
 
 					}
+					pFbxFileTexture->Destroy();
 				}
 			}
 		}
@@ -832,6 +825,7 @@ void FbxRelated::GetTextureName(fbxsdk::FbxSurfaceMaterial* pMaterial, const cha
 					m_pModel[m_modelDataCount - 1]->m_pFbxModelData->fileTextureCount++;
 
 				}
+				pFbxProceduralTexture->Destroy();
 			}
 		}
 
