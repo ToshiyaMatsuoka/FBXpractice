@@ -631,7 +631,7 @@ void FbxRelated::GetMaterialData(fbxsdk::FbxMesh* pMesh)
 
 			// 反射
 			//			reflectivity_ = (float)phong->GetReflectionFactor().Get();		??????????????
-
+			
 			MaterialData.Power = (float)phong->Shininess.Get();
 
 			GetTextureName(phong, fbxsdk::FbxSurfaceMaterial::sNormalMap);
